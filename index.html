@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduPredict AI — Student Result Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#F0F4FF;
+  --surface:#FFFFFF;
+  --surface2:#F7F9FF;
+  --border:#E2E8F8;
+  --accent:#4F46E5;
+  --accent2:#7C3AED;
+  --teal:#0EA5E9;
+  --green:#10B981;
+  --amber:#F59E0B;
+  --red:#EF4444;
+  --text:#1A1D2E;
+  --text-muted:#6B7280;
+  --text-light:#9CA3AF;
+  --radius:14px;
+  --shadow:0 2px 16px rgba(79,70,229,0.08);
+  --shadow-lg:0 8px 40px rgba(79,70,229,0.14);
+  --font:'Space Grotesk',sans-serif;
+  --font-serif:'Instrument Serif',serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+
+html,body{min-height:100%;font-family:var(--font);background:var(--bg);color:var(--text)}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 0 var(--border);
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#fff;font-weight:700;
+}
+.brand-name{font-size:1.1rem;font-weight:700;color:var(--text)}
+.brand-name span{color:var(--accent)}
+.topbar-badge{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,rgba(79,70,229,0.1),rgba(124,58,237,0.1));
+  border:1px solid rgba(79,70,229,0.2);
+  border-radius:20px;padding:5px 12px;
+  font-size:0.75rem;font-weight:600;color:var(--accent);
+}
+
+/* ── HERO ── */
+.hero{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 60%,#1D4ED8 100%);
+  padding:52px 28px 48px;text-align:center;color:#fff;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);
+  border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:500;
+  margin-bottom:18px;letter-spacing:.03em;position:relative;
+}
+.hero h1{font-family:var(--font-serif);font-size:clamp(1.8rem,4vw,2.8rem);margin-bottom:12px;line-height:1.2;position:relative}
+.hero h1 em{font-style:italic;opacity:.9}
+.hero p{font-size:0.95rem;opacity:.85;max-width:520px;margin:0 auto 28px;line-height:1.65;position:relative}
+.hero-stats{
+  display:flex;justify-content:center;gap:32px;flex-wrap:wrap;position:relative;
+}
+.hero-stat{text-align:center}
+.hero-stat-val{font-size:1.6rem;font-weight:700;font-family:var(--font-mono)}
+.hero-stat-label{font-size:0.72rem;opacity:.7;margin-top:2px;letter-spacing:.04em;text-transform:uppercase}
+
+/* ── MAIN ── */
+.main{max-width:1080px;margin:0 auto;padding:36px 20px 60px}
+
+/* ── STEP TABS ── */
+.steps{
+  display:flex;gap:0;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:28px;overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.step-tab{
+  flex:1;padding:14px 10px;text-align:center;cursor:pointer;
+  font-size:0.8rem;font-weight:600;color:var(--text-muted);
+  border-right:1px solid var(--border);transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.step-tab:last-child{border-right:none}
+.step-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.step-tab.done{background:rgba(16,185,129,0.08);color:var(--green)}
+.step-tab .step-num{
+  width:22px;height:22px;border-radius:50%;border:2px solid currentColor;
+  display:flex;align-items:center;justify-content:center;font-size:0.72rem;flex-shrink:0;
+}
+.step-tab.active .step-num{background:rgba(255,255,255,0.25);border-color:transparent}
+.step-label-full{display:inline}
+.step-label-short{display:none}
+@media(max-width:600px){.step-label-full{display:none}.step-label-short{display:inline}}
+
+/* ── SECTION CARD ── */
+.section-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px;margin-bottom:20px;
+  box-shadow:var(--shadow);
+}
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.section-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+.section-icon.blue{background:rgba(79,70,229,0.1);color:var(--accent)}
+.section-icon.teal{background:rgba(14,165,233,0.1);color:var(--teal)}
+.section-icon.green{background:rgba(16,185,129,0.1);color:var(--green)}
+.section-title{font-size:1.05rem;font-weight:700;color:var(--text)}
+.section-sub{font-size:0.78rem;color:var(--text-muted);margin-top:2px}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:700px){.form-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:440px){.form-grid{grid-template-columns:1fr}}
+
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:0.8rem;font-weight:600;color:var(--text)}
+.form-label span{color:var(--red);margin-left:2px}
+.form-input,.form-select{
+  border:1.5px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-family:var(--font);font-size:0.88rem;color:var(--text);
+  background:var(--surface2);outline:none;transition:all .2s;width:100%;
+}
+.form-input:focus,.form-select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
+.form-input::placeholder{color:var(--text-light)}
+
+/* ── SUBJECT MARKS ── */
+.subjects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:500px){.subjects-grid{grid-template-columns:1fr}}
+
+.subject-card{
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px 16px;transition:all .2s;
+}
+.subject-card:focus-within{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,0.08)}
+.subject-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.subject-emoji{font-size:20px}
+.subject-name{font-size:0.85rem;font-weight:700;color:var(--text)}
+.subject-max{font-size:0.72rem;color:var(--text-muted)}
+.subject-inputs{display:flex;gap:8px}
+.subject-field{flex:1}
+.subject-field label{font-size:0.7rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.subject-field input{
+  width:100%;border:1.5px solid var(--border);border-radius:8px;
+  padding:7px 10px;font-family:var(--font-mono);font-size:0.88rem;color:var(--text);
+  background:#fff;outline:none;transition:all .2s;text-align:center;
+}
+.subject-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,70,229,0.1)}
+.subject-field input::placeholder{color:var(--text-light)}
+
+.marks-bar{margin-top:10px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.marks-bar-fill{height:100%;border-radius:2px;transition:width .4s ease,background .3s}
+
+/* ── HABITS GRID ── */
+.habits-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+@media(max-width:500px){.habits-grid{grid-template-columns:1fr}}
+
+.habit-card{
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:12px;padding:16px;
+}
+.habit-title{font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.radio-group{display:flex;flex-direction:column;gap:6px}
+.radio-item{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:6px 10px;border-radius:8px;border:1.5px solid transparent;transition:all .15s;
+}
+.radio-item:hover{background:rgba(79,70,229,0.06);border-color:rgba(79,70,229,0.15)}
+.radio-item input[type=radio]{accent-color:var(--accent)}
+.radio-item span{font-size:0.82rem;color:var(--text)}
+.radio-item.selected{background:rgba(79,70,229,0.07);border-color:rgba(79,70,229,0.25)}
+
+/* ── PREDICT BTN ── */
+.predict-btn{
+  width:100%;padding:16px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;font-family:var(--font);font-size:1rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .25s;margin-top:8px;letter-spacing:.01em;
+}
+.predict-btn:hover{opacity:.9;transform:translateY(-2px);box-shadow:0 8px 24px rgba(79,70,229,0.35)}
+.predict-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.predict-btn .btn-spinner{
+  width:20px;height:20px;border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;display:none;
+}
+.predict-btn.loading .btn-spinner{display:block}
+.predict-btn.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RESULTS ── */
+.results-section{display:none}
+.results-section.visible{display:block}
+
+.result-hero{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+  border-radius:var(--radius);padding:28px;color:#fff;
+  display:flex;align-items:center;gap:24px;margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.result-grade-circle{
+  width:96px;height:96px;border-radius:50%;
+  border:4px solid rgba(255,255,255,0.4);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  flex-shrink:0;background:rgba(255,255,255,0.15);
+}
+.result-grade-val{font-size:2.2rem;font-weight:700;font-family:var(--font-mono);line-height:1}
+.result-grade-label{font-size:0.65rem;opacity:.8;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.result-info{flex:1}
+.result-student-name{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+.result-outcome{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.18);border-radius:20px;
+  padding:4px 12px;font-size:0.78rem;font-weight:600;margin-bottom:10px;
+}
+.result-percentage{font-size:0.88rem;opacity:.85}
+
+.metrics-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:640px){.metrics-row{grid-template-columns:repeat(2,1fr)}}
+.metric-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);
+}
+.metric-val{font-size:1.5rem;font-weight:700;font-family:var(--font-mono);color:var(--accent)}
+.metric-label{font-size:0.72rem;color:var(--text-muted);margin-top:3px;font-weight:500}
+
+/* Subject performance */
+.subj-perf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:500px){.subj-perf-grid{grid-template-columns:1fr}}
+.subj-perf-card{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:12px;padding:14px;
+}
+.subj-perf-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.subj-perf-name{font-size:0.85rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.subj-perf-score{
+  font-size:0.85rem;font-weight:700;font-family:var(--font-mono);
+  padding:3px 9px;border-radius:6px;
+}
+.grade-badge{
+  font-size:0.72rem;font-weight:700;padding:3px 9px;border-radius:6px;
+}
+.g-A1{background:rgba(16,185,129,0.12);color:#059669}
+.g-A2{background:rgba(16,185,129,0.08);color:#10B981}
+.g-B1{background:rgba(14,165,233,0.1);color:#0EA5E9}
+.g-B2{background:rgba(14,165,233,0.08);color:#38BDF8}
+.g-C1{background:rgba(245,158,11,0.1);color:#D97706}
+.g-C2{background:rgba(245,158,11,0.08);color:#F59E0B}
+.g-D{background:rgba(239,68,68,0.1);color:#EF4444}
+.g-F{background:rgba(239,68,68,0.15);color:#DC2626}
+
+.bar-outer{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.bar-inner{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* ── AI ANALYSIS ── */
+.ai-analysis-box{
+  background:linear-gradient(135deg,rgba(79,70,229,0.04),rgba(124,58,237,0.04));
+  border:1.5px solid rgba(79,70,229,0.2);
+  border-radius:var(--radius);padding:24px;
+}
+.ai-analysis-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  padding-bottom:14px;border-bottom:1px solid rgba(79,70,229,0.15);
+}
+.ai-analysis-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;
+}
+.ai-analysis-title{font-size:1rem;font-weight:700;color:var(--accent)}
+.ai-analysis-sub{font-size:0.74rem;color:var(--text-muted)}
+.ai-analysis-body{font-size:0.88rem;line-height:1.75;color:var(--text)}
+.ai-analysis-body strong{color:var(--accent);font-weight:600}
+.ai-analysis-body em{color:var(--accent2);font-style:italic}
+.ai-analysis-body ul{padding-left:20px;margin:8px 0}
+.ai-analysis-body li{margin-bottom:5px}
+.ai-analysis-body h3{
+  color:var(--text);font-size:0.9rem;font-weight:700;
+  margin:14px 0 6px;display:flex;align-items:center;gap:6px;
+}
+.ai-analysis-body p{margin-bottom:10px}
+.ai-analysis-body p:last-child{margin-bottom:0}
+
+.ai-typing{
+  display:flex;align-items:center;gap:10px;padding:20px 0;
+  font-size:0.85rem;color:var(--text-muted);font-style:italic;
+}
+.ai-typing-dots{display:flex;gap:5px}
+.ai-typing-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--accent);
+  animation:aiDot 1.2s infinite;opacity:.4;
+}
+.ai-typing-dot:nth-child(2){animation-delay:.2s}
+.ai-typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes aiDot{0%,80%,100%{opacity:.4;transform:scale(1)}40%{opacity:1;transform:scale(1.3)}}
+
+/* ── ACTION ROW ── */
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.action-btn{
+  flex:1;min-width:140px;padding:12px 16px;border-radius:10px;
+  border:1.5px solid var(--border);background:var(--surface);
+  color:var(--text);font-family:var(--font);font-size:0.85rem;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:all .2s;
+}
+.action-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(79,70,229,0.05)}
+.action-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.action-btn.primary:hover{background:var(--accent2);border-color:var(--accent2)}
+
+/* ── TOOLTIP / INFO ── */
+.info-note{
+  display:flex;align-items:flex-start;gap:8px;
+  background:rgba(14,165,233,0.07);border:1px solid rgba(14,165,233,0.2);
+  border-radius:10px;padding:12px 14px;font-size:0.8rem;color:#0369A1;margin-top:14px;
+}
+.info-note i{flex-shrink:0;margin-top:1px}
+
+/* ── PRINT ── */
+@media print{
+  .topbar,.hero,.steps,.form-section,.predict-btn,.action-row{display:none!important}
+  .results-section{display:block!important}
+  body{background:#fff}
+}
+
+/* ── SCROLL ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-thumb{background:#D1D5DB;border-radius:3px}
+
+/* ── FADE IN ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .4s ease both}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">📊</div>
+    <span class="brand-name">EduPredict <span>AI</span></span>
+  </div>
+  <div class="topbar-badge"><i class="fas fa-brain"></i> Powered by Claude AI</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow"><i class="fas fa-graduation-cap"></i> AI-Powered Academic Intelligence</div>
+  <h1>Student Result <em>Prediction</em> System</h1>
+  <p>Enter academic data and behavioral patterns — our AI analyzes performance, predicts grades, and delivers personalised study recommendations.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-val">6</div><div class="hero-stat-label">Subjects</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">AI</div><div class="hero-stat-label">Analysis</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">100%</div><div class="hero-stat-label">Free</div></div>
+    <div class="hero-stat"><div class="hero-stat-val">CBSEˉ</div><div class="hero-stat-label">Grade System</div></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STEPS -->
+  <div class="steps" id="stepTabs">
+    <div class="step-tab active" id="tab1">
+      <span class="step-num">1</span>
+      <span class="step-label-full">Student Info</span>
+      <span class="step-label-short">Info</span>
+    </div>
+    <div class="step-tab" id="tab2">
+      <span class="step-num">2</span>
+      <span class="step-label-full">Marks Entry</span>
+      <span class="step-label-short">Marks</span>
+    </div>
+    <div class="step-tab" id="tab3">
+      <span class="step-num">3</span>
+      <span class="step-label-full">Study Habits</span>
+      <span class="step-label-short">Habits</span>
+    </div>
+    <div class="step-tab" id="tab4">
+      <span class="step-num">4</span>
+      <span class="step-label-full">AI Prediction</span>
+      <span class="step-label-short">Result</span>
+    </div>
+  </div>
+
+  <!-- FORM SECTIONS -->
+  <div id="formSections">
+
+    <!-- SECTION 1: Student Info -->
+    <div class="section-card fade-in" id="sec1">
+      <div class="section-header">
+        <div class="section-icon blue"><i class="fas fa-user-graduate"></i></div>
+        <div>
+          <div class="section-title">Student Information</div>
+          <div class="section-sub">Basic details about the student</div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Student Name <span>*</span></label>
+          <input class="form-input" id="studentName" placeholder="e.g. Priya Sharma" type="text"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Class / Grade <span>*</span></label>
+          <select class="form-select" id="studentClass">
+            <option value="">Select class</option>
+            <option>Class 6</option><option>Class 7</option><option>Class 8</option>
+            <option>Class 9</option><option selected>Class 10</option>
+            <option>Class 11</option><option>Class 12</option>
+            <option>B.Tech 1st Year</option><option>B.Tech 2nd Year</option>
+            <option>B.Tech 3rd Year</option><option>B.Tech 4th Year</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">School / College</label>
+          <input class="form-input" id="schoolName" placeholder="e.g. St. Mary's High School"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Roll Number</label>
+          <input class="form-input" id="rollNo" placeholder="e.g. 2024001"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Academic Year</label>
+          <select class="form-select" id="acadYear">
+            <option>2024-25</option><option>2025-26</option><option>2023-24</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exam Type <span>*</span></label>
+          <select class="form-select" id="examType">
+            <option>Unit Test</option><option>Half Yearly</option>
+            <option selected>Annual Exam</option><option>Board Exam</option>
+            <option>Semester Exam</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: Marks -->
+    <div class="section-card fade-in" id="sec2">
+      <div class="section-header">
+        <div class="section-icon teal"><i class="fas fa-clipboard-list"></i></div>
+        <div>
+          <div class="section-title">Subject-wise Marks</div>
+          <div class="section-sub">Enter marks obtained and total marks for each subject</div>
+        </div>
+      </div>
+      <div class="subjects-grid" id="subjectsGrid">
+        <!-- Populated by JS -->
+      </div>
+      <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <span>Fill in both <strong>Obtained</strong> and <strong>Total</strong> marks. Leave blank if subject is not applicable.</span>
+      </div>
+    </div>
+
+    <!-- SECTION 3: Study Habits -->
+    <div class="section-card fade-in" id="sec3">
+      <div class="section-header">
+        <div class="section-icon green"><i class="fas fa-book-reader"></i></div>
+        <div>
+          <div class="section-title">Study Habits & Behaviour</div>
+          <div class="section-sub">These factors help AI give more accurate predictions</div>
+        </div>
+      </div>
+      <div class="habits-grid" id="habitsGrid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- PREDICT BUTTON -->
+    <button class="predict-btn" id="predictBtn" onclick="runPrediction()">
+      <div class="btn-spinner"></div>
+      <span class="btn-text"><i class="fas fa-brain"></i> &nbsp;Generate AI Prediction</span>
+    </button>
+
+  </div><!-- end formSections -->
+
+  <!-- ── RESULTS ── -->
+  <div class="results-section fade-in" id="resultsSection">
+
+    <!-- Result Hero -->
+    <div class="result-hero" id="resultHero">
+      <div class="result-grade-circle">
+        <div class="result-grade-val" id="resultGrade">—</div>
+        <div class="result-grade-label">Grade</div>
+      </div>
+      <div class="result-info">
+        <div class="result-student-name" id="resultName">Student</div>
+        <div class="result-outcome" id="resultOutcome"><i class="fas fa-check-circle"></i> —</div>
+        <div class="result-percentage" id="resultPct">—</div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="metrics-row" id="metricsRow"></div>
+
+    <!-- Subject Performance -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon teal"><i class="fas fa-chart-bar"></i></div>
+        <div>
+          <div class="section-title">Subject-wise Performance</div>
+          <div class="section-sub">Detailed breakdown per subject</div>
+        </div>
+      </div>
+      <div class="subj-perf-grid" id="subjPerfGrid"></div>
+    </div>
+
+    <!-- AI Analysis -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon blue"><i class="fas fa-brain"></i></div>
+        <div>
+          <div class="section-title">AI Analysis & Recommendations</div>
+          <div class="section-sub">Personalised insights powered by Claude</div>
+        </div>
+      </div>
+      <div class="ai-analysis-box">
+        <div class="ai-analysis-header">
+          <div class="ai-analysis-icon">✦</div>
+          <div>
+            <div class="ai-analysis-title">AI Academic Advisor</div>
+            <div class="ai-analysis-sub">Analysing performance patterns…</div>
+          </div>
+        </div>
+        <div class="ai-analysis-body" id="aiAnalysisBody">
+          <div class="ai-typing" id="aiTyping">
+            <div class="ai-typing-dots">
+              <div class="ai-typing-dot"></div>
+              <div class="ai-typing-dot"></div>
+              <div class="ai-typing-dot"></div>
+            </div>
+            <span>AI is analysing your academic data…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Row -->
+    <div class="action-row">
+      <button class="action-btn" onclick="printResult()"><i class="fas fa-print"></i> Print Report</button>
+      <button class="action-btn" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Save as Text</button>
+      <button class="action-btn" onclick="resetForm()"><i class="fas fa-redo"></i> New Prediction</button>
+      <button class="action-btn primary" onclick="shareResult()"><i class="fas fa-share-alt"></i> Share Result</button>
+    </div>
+
+  </div><!-- end resultsSection -->
+
+</div><!-- end main -->
+
+<script>
+// ── SUBJECTS DATA ──
+const SUBJECTS = [
+  { id:'math',    name:'Mathematics',     emoji:'🔢', max:100 },
+  { id:'science', name:'Science',          emoji:'🔬', max:100 },
+  { id:'english', name:'English',          emoji:'📝', max:100 },
+  { id:'hindi',   name:'Hindi/Lang-2',    emoji:'🗣️', max:100 },
+  { id:'sst',     name:'Social Studies',  emoji:'🌍', max:100 },
+  { id:'cs',      name:'Computer Sc.',    emoji:'💻', max:100 },
+];
+
+// ── HABITS ──
+const HABITS = [
+  {
+    id:'study_hours', label:'📚 Daily Study Hours',
+    options:['Less than 1 hr','1–2 hours','2–4 hours','More than 4 hours']
+  },
+  {
+    id:'attendance', label:'🏫 School Attendance',
+    options:['Below 60%','60–75%','75–90%','Above 90%']
+  },
+  {
+    id:'homework', label:'📋 Homework Completion',
+    options:['Rarely','Sometimes','Usually','Always']
+  },
+  {
+    id:'distraction', label:'📱 Phone/Distraction Level',
+    options:['Very High','High','Moderate','Low']
+  },
+  {
+    id:'coaching', label:'🏫 Extra Coaching/Tuition',
+    options:['None','Occasional','Regular','Intensive']
+  },
+  {
+    id:'prev_perf', label:'📈 Previous Year Performance',
+    options:['Failed','Average (40–60%)','Good (60–80%)','Excellent (80%+)']
+  },
+];
+
+// ── BUILD SUBJECTS GRID ──
+function buildSubjectsGrid() {
+  const grid = document.getElementById('subjectsGrid');
+  grid.innerHTML = SUBJECTS.map(s => `
+    <div class="subject-card" id="sc_${s.id}">
+      <div class="subject-top">
+        <span class="subject-emoji">${s.emoji}</span>
+        <div>
+          <div class="subject-name">${s.name}</div>
+          <div class="subject-max">Max: ${s.max} marks</div>
+        </div>
+      </div>
+      <div class="subject-inputs">
+        <div class="subject-field">
+          <label>Obtained</label>
+          <input type="number" id="obt_${s.id}" min="0" max="${s.max}"
+            placeholder="—" oninput="updateBar('${s.id}')"/>
+        </div>
+        <div class="subject-field">
+          <label>Total</label>
+          <input type="number" id="tot_${s.id}" min="1" max="${s.max}"
+            placeholder="${s.max}" oninput="updateBar('${s.id}')"/>
+        </div>
+      </div>
+      <div class="marks-bar"><div class="marks-bar-fill" id="bar_${s.id}" style="width:0%;background:var(--border)"></div></div>
+    </div>
+  `).join('');
+}
+
+function updateBar(id) {
+  const obt = parseFloat(document.getElementById(`obt_${id}`)?.value) || 0;
+  let tot = parseFloat(document.getElementById(`tot_${id}`)?.value) || 100;
+  const pct = Math.min((obt / tot) * 100, 100);
+  const bar = document.getElementById(`bar_${id}`);
+  if (bar) {
+    bar.style.width = pct + '%';
+    bar.style.background = pct >= 75 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+  }
+}
+
+// ── BUILD HABITS ──
+function buildHabits() {
+  const grid = document.getElementById('habitsGrid');
+  grid.innerHTML = HABITS.map(h => `
+    <div class="habit-card">
+      <div class="habit-title">${h.label}</div>
+      <div class="radio-group">
+        ${h.options.map((opt, i) => `
+          <label class="radio-item" id="ri_${h.id}_${i}">
+            <input type="radio" name="${h.id}" value="${i}" onchange="highlightRadio('${h.id}')"/>
+            <span>${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  // Default selections
+  HABITS.forEach(h => {
+    const def = Math.floor(h.options.length / 2);
+    const el = document.querySelector(`input[name="${h.id}"][value="${def}"]`);
+    if (el) { el.checked = true; highlightRadio(h.id); }
+  });
+}
+
+function highlightRadio(name) {
+  document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+    r.closest('.radio-item').classList.toggle('selected', r.checked);
+  });
+}
+
+// ── GRADE CALC ──
+function calcGrade(pct) {
+  if (pct >= 91) return {grade:'A1',gpa:10,label:'Outstanding'};
+  if (pct >= 81) return {grade:'A2',gpa:9,label:'Excellent'};
+  if (pct >= 71) return {grade:'B1',gpa:8,label:'Very Good'};
+  if (pct >= 61) return {grade:'B2',gpa:7,label:'Good'};
+  if (pct >= 51) return {grade:'C1',gpa:6,label:'Satisfactory'};
+  if (pct >= 41) return {grade:'C2',gpa:5,label:'Average'};
+  if (pct >= 33) return {grade:'D', gpa:4,label:'Needs Improvement'};
+  return {grade:'F',gpa:0,label:'Fail'};
+}
+
+function getBarColor(pct) {
+  if (pct >= 75) return '#10B981';
+  if (pct >= 50) return '#F59E0B';
+  return '#EF4444';
+}
+
+// ── COLLECT DATA ──
+function collectData() {
+  const subjects = SUBJECTS.map(s => {
+    const obt = parseFloat(document.getElementById(`obt_${s.id}`)?.value) || null;
+    const tot = parseFloat(document.getElementById(`tot_${s.id}`)?.value) || s.max;
+    const pct = obt !== null ? Math.min((obt / tot) * 100, 100) : null;
+    return { ...s, obtained: obt, total: tot, pct };
+  }).filter(s => s.obtained !== null);
+
+  const habits = {};
+  HABITS.forEach(h => {
+    const sel = document.querySelector(`input[name="${h.id}"]:checked`);
+    habits[h.id] = sel ? h.options[parseInt(sel.value)] : h.options[2];
+  });
+
+  const totalObt = subjects.reduce((a, s) => a + s.obtained, 0);
+  const totalMax = subjects.reduce((a, s) => a + s.total, 0);
+  const overallPct = totalMax > 0 ? (totalObt / totalMax) * 100 : 0;
+
+  return {
+    name: document.getElementById('studentName').value || 'Student',
+    studentClass: document.getElementById('studentClass').value || 'Class 10',
+    school: document.getElementById('schoolName').value || '',
+    rollNo: document.getElementById('rollNo').value || '',
+    acadYear: document.getElementById('acadYear').value,
+    examType: document.getElementById('examType').value,
+    subjects, habits, totalObt, totalMax, overallPct,
+    grade: calcGrade(overallPct)
+  };
+}
+
+// ── RENDER RESULTS ──
+function renderResults(data) {
+  // Hero
+  document.getElementById('resultGrade').textContent = data.grade.grade;
+  document.getElementById('resultName').textContent = data.name + (data.school ? ` — ${data.school}` : '');
+  const passed = data.grade.grade !== 'F';
+  document.getElementById('resultOutcome').innerHTML = passed
+    ? '<i class="fas fa-check-circle"></i> ' + data.grade.label + ' — Passed'
+    : '<i class="fas fa-times-circle"></i> ' + data.grade.label + ' — Failed';
+  document.getElementById('resultPct').textContent =
+    `${data.overallPct.toFixed(1)}% · ${data.totalObt}/${data.totalMax} marks · ${data.examType} · ${data.acadYear}`;
+
+  // Metrics
+  const highest = data.subjects.reduce((a,b) => (b.pct||0) > (a.pct||0) ? b : a, data.subjects[0]);
+  const lowest  = data.subjects.reduce((a,b) => (b.pct||0) < (a.pct||0) ? b : a, data.subjects[0]);
+  document.getElementById('metricsRow').innerHTML = [
+    {val: data.overallPct.toFixed(1)+'%', label:'Overall %'},
+    {val: data.grade.gpa+'/10', label:'GPA (CGPA)'},
+    {val: highest?.emoji + ' ' + (highest?.pct?.toFixed(0)||'-')+'%', label:'Best Subject'},
+    {val: lowest?.emoji  + ' ' + (lowest?.pct?.toFixed(0)||'-')+'%',  label:'Weakest Subject'},
+  ].map(m => `
+    <div class="metric-card">
+      <div class="metric-val">${m.val}</div>
+      <div class="metric-label">${m.label}</div>
+    </div>
+  `).join('');
+
+  // Subject perf
+  document.getElementById('subjPerfGrid').innerHTML = data.subjects.map(s => {
+    const pct = s.pct || 0;
+    const g = calcGrade(pct);
+    return `
+      <div class="subj-perf-card">
+        <div class="subj-perf-top">
+          <div class="subj-perf-name">${s.emoji} ${s.name}</div>
+          <div>
+            <span class="grade-badge g-${g.grade.replace('+','')}">${g.grade}</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:6px">
+          <span>${s.obtained}/${s.total} marks</span>
+          <span style="font-family:var(--font-mono);font-weight:600;color:${getBarColor(pct)}">${pct.toFixed(1)}%</span>
+        </div>
+        <div class="bar-outer">
+          <div class="bar-inner" style="width:${pct}%;background:${getBarColor(pct)}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── AI ANALYSIS VIA CLAUDE API ──
+async function fetchAIAnalysis(data) {
+  const subjectSummary = data.subjects.map(s =>
+    `${s.name}: ${s.obtained}/${s.total} (${(s.pct||0).toFixed(1)}%)`
+  ).join(', ');
+
+  const habitSummary = Object.entries(data.habits)
+    .map(([k,v]) => `${k.replace(/_/g,' ')}: ${v}`)
+    .join('; ');
+
+  const prompt = `You are an expert academic advisor and AI tutor. Analyse this student's exam performance and provide a detailed personalised report.
+
+**Student:** ${data.name}
+**Class:** ${data.studentClass}
+**Exam:** ${data.examType} (${data.acadYear})
+**Overall:** ${data.overallPct.toFixed(1)}% — Grade ${data.grade.grade} (${data.grade.label})
+
+**Subject Marks:**
+${subjectSummary}
+
+**Study Habits & Behaviour:**
+${habitSummary}
+
+Provide a structured analysis in this exact format:
+
+### 📊 Performance Overview
+[2-3 sentences summarising overall performance honestly]
+
+### ✅ Strengths
+[3 bullet points about what the student is doing well — specific subjects and habits]
+
+### ⚠️ Areas to Improve
+[3 bullet points on weak subjects/habits with specific reasons]
+
+### 📅 Study Plan Recommendations
+[4 actionable, specific study tips tailored to this student's weak areas and habits]
+
+### 🎯 Target for Next Exam
+[Realistic, motivating target percentage and grade, and one key thing to focus on]
+
+Keep the tone warm, encouraging, and direct. Be specific about subject names. Use simple language suitable for students.`;
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!response.ok) throw new Error('API error ' + response.status);
+  const json = await response.json();
+  return json.content?.[0]?.text || 'Analysis unavailable.';
+}
+
+function parseAIText(text) {
+  text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  text = text.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+  text = text.replace(/(<li>[\s\S]+?<\/li>)/g, m => `<ul>${m}</ul>`);
+  text = text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+  return `<p>${text}</p>`;
+}
+
+// ── MAIN PREDICT ──
+async function runPrediction() {
+  // Validate
+  const name = document.getElementById('studentName').value.trim();
+  if (!name) { alert('Please enter the student name.'); document.getElementById('studentName').focus(); return; }
+  const data = collectData();
+  if (data.subjects.length === 0) {
+    alert('Please enter marks for at least one subject.'); return;
+  }
+
+  // Lock btn
+  const btn = document.getElementById('predictBtn');
+  btn.disabled = true; btn.classList.add('loading');
+
+  // Scroll to results
+  document.getElementById('resultsSection').classList.add('visible');
+  document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Render static results
+  renderResults(data);
+
+  // Update step tabs
+  ['tab1','tab2','tab3'].forEach(t => {
+    document.getElementById(t).className = 'step-tab done';
+    document.getElementById(t).querySelector('.step-num').innerHTML = '<i class="fas fa-check" style="font-size:10px"></i>';
+  });
+  document.getElementById('tab4').classList.add('active');
+
+  // Fetch AI
+  try {
+    const aiText = await fetchAIAnalysis(data);
+    document.getElementById('aiTyping').style.display = 'none';
+    document.getElementById('aiAnalysisBody').innerHTML = parseAIText(aiText);
+  } catch(e) {
+    document.getElementById('aiTyping').style.display = 'none';
+    document.getElementById('aiAnalysisBody').innerHTML = `
+      <p><strong>AI analysis temporarily unavailable.</strong> Here's a quick summary based on your marks:</p>
+      <ul>
+        <li>Overall: <strong>${data.overallPct.toFixed(1)}%</strong> — Grade <strong>${data.grade.grade}</strong> (${data.grade.label})</li>
+        <li>Subjects entered: ${data.subjects.length}</li>
+        <li>Strongest: ${data.subjects.reduce((a,b)=>(b.pct||0)>(a.pct||0)?b:a).name} (${data.subjects.reduce((a,b)=>(b.pct||0)>(a.pct||0)?b:a).pct?.toFixed(1)}%)</li>
+        <li>Focus on improvement: ${data.subjects.reduce((a,b)=>(b.pct||0)<(a.pct||0)?b:a).name}</li>
+      </ul>
+      <p style="color:var(--text-muted);font-size:0.8rem;">Error: ${e.message}</p>
+    `;
+  }
+
+  btn.disabled = false; btn.classList.remove('loading');
+}
+
+// ── ACTIONS ──
+function resetForm() {
+  document.getElementById('resultsSection').classList.remove('visible');
+  ['tab1','tab2','tab3'].forEach((t,i) => {
+    const el = document.getElementById(t);
+    el.className = i===0 ? 'step-tab active' : 'step-tab';
+    el.querySelector('.step-num').textContent = i+1;
+  });
+  document.getElementById('tab4').className = 'step-tab';
+  document.getElementById('tab4').querySelector('.step-num').textContent = '4';
+  document.getElementById('aiTyping').style.display = 'flex';
+  document.getElementById('aiAnalysisBody').innerHTML = document.getElementById('aiTyping').outerHTML;
+  // Clear marks
+  SUBJECTS.forEach(s => {
+    const o = document.getElementById(`obt_${s.id}`);
+    const t = document.getElementById(`tot_${s.id}`);
+    if(o) o.value=''; if(t) t.value='';
+    updateBar(s.id);
+  });
+  document.getElementById('studentName').value='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function printResult() { window.print(); }
+
+function exportPDF() {
+  const data = collectData();
+  const lines = [
+    `EduPredict AI — Student Result Report`,
+    `Generated: ${new Date().toLocaleString()}`,
+    `----------------------------------------`,
+    `Student: ${data.name}`,
+    `Class: ${data.studentClass}  |  Exam: ${data.examType}  |  Year: ${data.acadYear}`,
+    `Overall: ${data.overallPct.toFixed(1)}%  |  Grade: ${data.grade.grade} (${data.grade.label})`,
+    `Marks: ${data.totalObt}/${data.totalMax}`,
+    ``,
+    `Subject-wise:`,
+    ...data.subjects.map(s => `  ${s.name}: ${s.obtained}/${s.total} (${(s.pct||0).toFixed(1)}%) — ${calcGrade(s.pct||0).grade}`),
+    ``,
+    `Habits: ${JSON.stringify(data.habits, null, 2)}`,
+  ].join('\n');
+  const blob = new Blob([lines], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `${data.name.replace(/\s+/g,'_')}_result_${Date.now()}.txt`; a.click();
+}
+
+function shareResult() {
+  const data = collectData();
+  const text = `📊 ${data.name}'s Result — ${data.grade.grade} Grade (${data.overallPct.toFixed(1)}%) | ${data.examType} ${data.acadYear} | EduPredict AI`;
+  if (navigator.share) {
+    navigator.share({ title: 'Student Result', text });
+  } else {
+    navigator.clipboard.writeText(text).then(() => alert('Result copied to clipboard!'));
+  }
+}
+
+// ── INIT ──
+buildSubjectsGrid();
+buildHabits();
+</script>
+</body>
+</html>
